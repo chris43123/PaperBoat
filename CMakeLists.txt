@@ -60,6 +60,9 @@ endif()
 
 if(ANDROID)
     add_compile_definitions(USE_OPENGLES=1)
+    # AArch64 Linux/Android default char to unsigned; the decomp (and every
+    # other platform we build, Apple arm64 included) assumes signed.
+    add_compile_options(-fsigned-char)
 endif()
 
 set(NATO_PHONETIC_ALPHABET
