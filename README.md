@@ -1,6 +1,24 @@
 # PaperBoat
 *Harbour Masters port of Paper Mario 64*
 
+> **About this fork** — Android fixes and a handheld-friendly launcher, tested on a
+> Mangmi Air X (Android 14, Snapdragon 662 / Adreno 610). Work is on the
+> [`airx`](../../tree/airx) branch; upstream is
+> [HarbourMasters/PaperBoat](https://github.com/HarbourMasters/PaperBoat).
+>
+> - **Fixes:** startup crash after extraction, settings never saving, garbled
+>   graphics on Adreno (GLES shader precision, via the
+>   [libultraship fork](https://github.com/chris43123/libultraship/tree/airx);
+>   Android heap pointer tagging), signed `char` on AArch64.
+> - **Main menu:** Play / Settings / Mods / Saves, usable by touch or controller.
+>   Settings covers render scale, anti-aliasing, frame rate, audio, touch controls,
+>   gameplay options and cheats, written straight to `paperboat.cfg.json`.
+> - **Pause menu:** press Back twice in-game for Resume / Settings / Quit to main menu.
+>
+> Build: `git clone --recursive -b airx https://github.com/chris43123/PaperBoat.git`,
+> then see [docs/android-ios-web.md](docs/android-ios-web.md#android). No game
+> data is included; you supply your own ROM.
+
 Project Lead:
 * Caladius
 

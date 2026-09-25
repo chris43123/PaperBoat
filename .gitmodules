@@ -4,5 +4,5 @@
 	branch = pm64
 [submodule "external/libultraship"]
 	path = external/libultraship
-	url = https://github.com/JeodC/libultraship.git
-	branch = lus-converge
+	url = https://github.com/chris43123/libultraship.git
+	branch = airx
