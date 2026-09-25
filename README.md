@@ -42,9 +42,19 @@ from **Project Lead** down is their README, unchanged.
 
 ### Install
 
-There is no prebuilt APK yet, so build it yourself. You need the Android SDK
-with **NDK 30.0.15729638**, **CMake 3.30.3+** from the SDK manager, and
-**JDK 17+** (details in [docs/android-ios-web.md](docs/android-ios-web.md#android)).
+**Download:** grab the APK from the
+[latest release](https://github.com/chris43123/PaperBoat/releases/latest) and open it on
+the device (allow installing from unknown sources), or `adb install` it. It needs a
+64-bit ARM (`arm64-v8a`) device on Android 7 or newer.
+
+If another Paperboat build is already installed (an upstream CI artifact, or one you
+built yourself), uninstall it first; builds signed with different keys can't update
+each other. **Uninstalling deletes your saves**, so back up
+`Android/data/dev.net64.paperboat/files/saves/` first (or use **Saves → Back up all**).
+
+**Build it yourself:** you need the Android SDK with **NDK 30.0.15729638**,
+**CMake 3.30.3+** from the SDK manager, and **JDK 17+** (details in
+[docs/android-ios-web.md](docs/android-ios-web.md#android)).
 
 ```bash
 git clone --recursive -b airx https://github.com/chris43123/PaperBoat.git
@@ -53,9 +63,8 @@ cd PaperBoat/android
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-The build is for 64-bit ARM (`arm64-v8a`), which covers current Android handhelds.
-Without your own signing key it's signed with the debug key; that installs fine,
-but you'd have to uninstall it before installing a build signed differently.
+Without your own `key.properties` the build is signed with your debug key, so it
+won't install over the released APK (and vice versa).
 
 ### First run
 
