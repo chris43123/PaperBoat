@@ -3,6 +3,7 @@ package dev.net64.paperboat
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -43,6 +44,13 @@ class SettingsActivity : ComponentActivity() {
         config = GameConfig.load(this)
         buildUi()
         showSection(0)
+    }
+
+    // A screen opened from here (button mapping) saves the same file, so take
+    // its changes on board before this one saves over them.
+    override fun onRestart() {
+        super.onRestart()
+        config = GameConfig.load(this)
     }
 
     private fun buildUi() {
@@ -138,6 +146,13 @@ class SettingsActivity : ComponentActivity() {
         val spacing = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             .apply { bottomMargin = dp(6) }
         current.settings.forEach { list.addView(SettingRow(this, it), spacing) }
+        current.links.forEach { link ->
+            list.addView(bigButton("${link.label}  ▸") { startActivity(Intent(this, link.activity)) }.apply {
+                textSize = 18f
+                setTypeface(Typeface.DEFAULT, Typeface.NORMAL)
+                setOnFocusChangeListener { _, focused -> if (focused) help.text = link.help }
+            }, spacing)
+        }
         list.addView(bigButton("Reset ${current.title.lowercase()} to defaults") { confirmReset() }.apply {
             textSize = 16f
             setTextColor(MenuUi.SUBTLE)

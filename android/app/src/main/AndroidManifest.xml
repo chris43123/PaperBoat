@@ -86,6 +86,13 @@
             android:process=":menu"
             android:screenOrientation="sensorLandscape"
             android:theme="@android:style/Theme.Material.NoActionBar" />
+        <activity
+            android:name=".ButtonMappingActivity"
+            android:exported="false"
+            android:label="@string/settings_title"
+            android:process=":menu"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
 
         <activity
             android:name=".MainActivity"

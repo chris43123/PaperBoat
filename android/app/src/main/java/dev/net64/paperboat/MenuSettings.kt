@@ -81,7 +81,10 @@ sealed class MenuSetting(val key: String, val label: String, val help: String) {
     }
 }
 
-class MenuSection(val title: String, val settings: List<MenuSetting>)
+/** A row that opens a screen of its own, for settings that don't fit ◀ value ▶. */
+class MenuLink(val label: String, val help: String, val activity: Class<out android.app.Activity>)
+
+class MenuSection(val title: String, val settings: List<MenuSetting>, val links: List<MenuLink> = emptyList())
 
 object MenuSettings {
 
@@ -161,6 +164,13 @@ object MenuSettings {
                     "gSettings.Controls.DPadAsLeftStick", "D-pad moves Mario",
                     "Lets the D-pad act as the analog stick.",
                     false,
+                ),
+            ),
+            links = listOf(
+                MenuLink(
+                    "Button mapping",
+                    "Choose which button on the handheld does what: Start, Z, the C buttons and the rest.",
+                    ButtonMappingActivity::class.java,
                 ),
             ),
         ),

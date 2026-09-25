@@ -36,7 +36,11 @@ class GameConfig private constructor(private val file: File, private val root: J
         else -> default
     }
 
+    fun getString(key: String, default: String): String = lookup(key) as? String ?: default
+
     fun setInt(key: String, value: Int) = store(key, value)
+
+    fun setString(key: String, value: String) = store(key, value)
 
     // Via the string so 0.6f is stored as 0.6, not 0.6000000238418579.
     fun setFloat(key: String, value: Float) = store(key, value.toString().toDouble())
