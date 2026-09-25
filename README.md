@@ -36,6 +36,9 @@ from **Project Lead** down is their README, unchanged.
 - **Native settings**: render scale, anti-aliasing, frame rate, VSync, texture
   filtering, full-height view, volumes, touch controls, gameplay options and
   cheats, written straight to the engine's `paperboat.cfg.json`.
+- **Button mapping** (Settings → Controls): pick an N64 button, press the
+  handheld button you want for it. Buttons already in use swap over, and one
+  entry resets them all. Back can't be assigned; it's kept for the pause menu.
 - **Pause menu**: press **Back twice** in game for Resume, Settings or Quit to
   main menu. The game really pauses while it's open.
 - **Quitting** now always returns to the main menu.
