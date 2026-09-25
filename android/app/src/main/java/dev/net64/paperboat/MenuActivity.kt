@@ -34,6 +34,10 @@ class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildUi()
+        // "Settings" in the pause menu quits the game and lands here.
+        if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_OPEN_SETTINGS, false)) {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -150,5 +154,9 @@ class MenuActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
-        handleGamepadKey(event) || super.dispatchKeyEvent(event)
+        handleGamepadKey(event) { playButton } || super.dispatchKeyEvent(event)
+
+    companion object {
+        const val EXTRA_OPEN_SETTINGS = "dev.net64.paperboat.OPEN_SETTINGS"
+    }
 }

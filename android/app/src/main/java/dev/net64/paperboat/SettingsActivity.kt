@@ -185,7 +185,7 @@ class SettingsActivity : ComponentActivity() {
                 return true
             }
         }
-        return handleGamepadKey(event) || super.dispatchKeyEvent(event)
+        return handleGamepadKey(event) { list.getChildAt(0) } || super.dispatchKeyEvent(event)
     }
 
     /** One setting: label on the left, ◀ value ▶ on the right. */

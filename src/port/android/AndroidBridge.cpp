@@ -1,5 +1,6 @@
 /**
- * JNI surface for the Android app: menu state, ROM recognition, and extraction.
+ * JNI surface for the Android app: menu state, quitting, ROM recognition, and
+ * extraction.
  *
  * On-screen controls are not here — the engine draws its own, in
  * src/port/ui/TouchControls.cpp.
@@ -69,6 +70,22 @@ JNIEXPORT jboolean JNICALL Java_dev_net64_paperboat_MainActivity_isMenuOpen(JNIE
     }
 
     return gui->GetMenuOrMenubarVisible() ? JNI_TRUE : JNI_FALSE;
+}
+
+/**
+ * Asks the game loop to stop, exactly like the menu's Quit button. The engine
+ * then shuts down normally (saving its config), SDL finishes the activity, and
+ * MainActivity.onDestroy returns to the launcher menu. Returns false if the
+ * engine isn't up yet, so the caller can fall back to finishing the activity.
+ */
+JNIEXPORT jboolean JNICALL Java_dev_net64_paperboat_MainActivity_requestQuit(JNIEnv*, jobject) {
+    auto context = Ship::Context::GetRawInstance();
+    if (context == nullptr || context->GetWindow() == nullptr) {
+        return JNI_FALSE;
+    }
+
+    context->GetWindow()->Close();
+    return JNI_TRUE;
 }
 
 /**

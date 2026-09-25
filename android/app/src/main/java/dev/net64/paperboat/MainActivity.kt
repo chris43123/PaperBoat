@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -28,6 +30,11 @@ class MainActivity : SDLActivity() {
 
     private var menuOpen = false
 
+    private val pauseMenu by lazy { PauseMenu(this, ::pauseGame, ::resumeGame, ::quitToMenu) }
+    private var lastBackUp = 0L
+    private var backHint: Toast? = null
+    private var openSettingsAfterQuit = false
+
     private val handler = Handler(Looper.getMainLooper())
     private val menuWatcher = object : Runnable {
         override fun run() {
@@ -42,6 +49,49 @@ class MainActivity : SDLActivity() {
     override fun getLibraries(): Array<String> = arrayOf("SDL2", "main")
 
     private external fun isMenuOpen(): Boolean
+
+    private external fun requestQuit(): Boolean
+
+    /**
+     * Back twice opens the pause menu. Back reaches here from the navigation
+     * gesture and from controllers alike, and the game has no use for it, so
+     * it never goes on to SDL.
+     */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode != KeyEvent.KEYCODE_BACK) return super.dispatchKeyEvent(event)
+
+        if (event.action == KeyEvent.ACTION_UP) {
+            val now = event.eventTime
+            if (now - lastBackUp < DOUBLE_BACK_MS) {
+                lastBackUp = 0L
+                backHint?.cancel()
+                pauseMenu.show()
+            } else {
+                lastBackUp = now
+                backHint?.cancel()
+                backHint = Toast.makeText(this, "Press Back again for the menu", Toast.LENGTH_SHORT).also { it.show() }
+            }
+        }
+        return true
+    }
+
+    /** The same transition SDL makes when the app goes to the background. */
+    private fun pauseGame() {
+        mNextNativeState = NativeState.PAUSED
+        handleNativeState()
+    }
+
+    /** Takes effect once the window has focus back, if it hasn't already. */
+    private fun resumeGame() {
+        mNextNativeState = NativeState.RESUMED
+        handleNativeState()
+    }
+
+    /** Lets the engine shut down on its own so it saves; see onDestroy for the rest. */
+    private fun quitToMenu(openSettings: Boolean) {
+        openSettingsAfterQuit = openSettings
+        if (!requestQuit()) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,7 +151,11 @@ class MainActivity : SDLActivity() {
         val quitting = isFinishing
         super.onDestroy()
         if (quitting) {
-            startActivity(Intent(this, MenuActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            startActivity(
+                Intent(this, MenuActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .putExtra(MenuActivity.EXTRA_OPEN_SETTINGS, openSettingsAfterQuit)
+            )
             Runtime.getRuntime().exit(0)
         }
     }
@@ -142,5 +196,8 @@ class MainActivity : SDLActivity() {
     private companion object {
         /** Fast enough to feel immediate on a menu toggle, cheap enough to ignore. */
         const val MENU_POLL_MS = 150L
+
+        /** Long enough for a relaxed double press, short enough that one press never lingers. */
+        const val DOUBLE_BACK_MS = 600L
     }
 }

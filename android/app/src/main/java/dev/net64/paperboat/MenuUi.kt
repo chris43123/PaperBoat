@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.View
 import android.widget.TextView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -72,10 +73,10 @@ object MenuUi {
      * a view that consumed the raw event first.
      * Returns true when the event was handled.
      */
-    fun Activity.handleGamepadKey(event: KeyEvent): Boolean {
+    fun Activity.handleGamepadKey(event: KeyEvent, defaultFocus: () -> View?): Boolean {
         when (event.keyCode) {
             KeyEvent.KEYCODE_BUTTON_A -> {
-                if (event.action == KeyEvent.ACTION_UP) currentFocus?.performClick()
+                if (event.action == KeyEvent.ACTION_UP) pressFocused(currentFocus, defaultFocus)
                 return true
             }
             KeyEvent.KEYCODE_BUTTON_B -> {
@@ -93,6 +94,16 @@ object MenuUi {
             hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+    }
+
+    /**
+     * After a touch Android is in touch mode and nothing holds focus, so the
+     * first A would do nothing. Press the screen's default item instead, and
+     * leave touch mode so the D-pad cursor shows from here on.
+     */
+    fun pressFocused(focused: View?, defaultFocus: () -> View?) {
+        val target = focused ?: defaultFocus()?.also { it.requestFocusFromTouch() }
+        target?.performClick()
     }
 
     @Suppress("DEPRECATION")
