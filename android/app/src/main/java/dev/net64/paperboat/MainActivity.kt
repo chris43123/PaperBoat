@@ -91,9 +91,19 @@ class MainActivity : SDLActivity() {
         super.onPause()
     }
 
+    /**
+     * Quitting the game returns to the main menu. The process ends too: the
+     * engine keeps global state that can't be torn down and rebuilt, so the
+     * next Play has to start in a fresh one.
+     */
     override fun onDestroy() {
         handler.removeCallbacks(menuWatcher)
+        val quitting = isFinishing
         super.onDestroy()
+        if (quitting) {
+            startActivity(Intent(this, MenuActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            Runtime.getRuntime().exit(0)
+        }
     }
 
     /**

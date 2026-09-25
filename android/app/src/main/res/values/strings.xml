@@ -3,6 +3,7 @@
     <string name="app_name">Paperboat</string>
     <string name="mods_button">Mods</string>
     <string name="saves_title">Saves</string>
+    <string name="settings_title">Settings</string>
     <string name="launcher_choose_rom">Choose Paper Mario ROM</string>
     <string name="launcher_preparing">Unpacking the bundled game files…</string>
     <string name="launcher_verifying">Verifying the selected ROM…</string>

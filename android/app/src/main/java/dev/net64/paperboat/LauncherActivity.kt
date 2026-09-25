@@ -59,7 +59,7 @@ class LauncherActivity : ComponentActivity() {
                         setBusy(false, stagingError)
                         chooseButton.isEnabled = false
                     }
-                    GameAssets.isExtracted(this) -> startGame()
+                    GameAssets.isExtracted(this) -> finishLaunch()
                     GameAssets.romFile(this).isFile -> extractRom()
                     else -> setBusy(false, romInstructions)
                 }
@@ -157,7 +157,7 @@ class LauncherActivity : ComponentActivity() {
 
             runOnUiThread {
                 if (error == null) {
-                    startGame()
+                    finishLaunch()
                 } else {
                     setBusy(false, "$error\n\n$romInstructions")
                 }
@@ -180,8 +180,14 @@ class LauncherActivity : ComponentActivity() {
         }
     }
 
-    private fun startGame() {
-        startActivity(Intent(this, MainActivity::class.java))
+    /**
+     * Into the main menu, or straight into the game when [EXTRA_START_GAME]
+     * asks — the Mods and Saves screens restart the game that way.
+     */
+    private fun finishLaunch() {
+        val next =
+            if (intent.getBooleanExtra(EXTRA_START_GAME, false)) MainActivity::class.java else MenuActivity::class.java
+        startActivity(Intent(this, next))
         finish()
 
         // This activity has its own process and the game runs in the main one,
@@ -199,7 +205,8 @@ class LauncherActivity : ComponentActivity() {
             "game data ships with the app.\n\n" +
             "Mods go in ${GameAssets.modsDir(this)}."
 
-    private companion object {
-        const val COPY_BUFFER_BYTES = 1 shl 17
+    companion object {
+        const val EXTRA_START_GAME = "dev.net64.paperboat.START_GAME"
+        private const val COPY_BUFFER_BYTES = 1 shl 17
     }
 }

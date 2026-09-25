@@ -226,6 +226,7 @@ class ModsActivity : ComponentActivity() {
     private fun restartGame() {
         val intent = Intent(this, LauncherActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .putExtra(LauncherActivity.EXTRA_START_GAME, true)
         startActivity(intent)
         finishAffinity()
         Runtime.getRuntime().exit(0)
