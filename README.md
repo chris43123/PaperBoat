@@ -1,23 +1,109 @@
 # PaperBoat
 *Harbour Masters port of Paper Mario 64*
 
-> **About this fork** — Android fixes and a handheld-friendly launcher, tested on a
-> Mangmi Air X (Android 14, Snapdragon 662 / Adreno 610). Work is on the
-> [`airx`](../../tree/airx) branch; upstream is
-> [HarbourMasters/PaperBoat](https://github.com/HarbourMasters/PaperBoat).
->
-> - **Fixes:** startup crash after extraction, settings never saving, garbled
->   graphics on Adreno (GLES shader precision, via the
->   [libultraship fork](https://github.com/chris43123/libultraship/tree/airx);
->   Android heap pointer tagging), signed `char` on AArch64.
-> - **Main menu:** Play / Settings / Mods / Saves, usable by touch or controller.
->   Settings covers render scale, anti-aliasing, frame rate, audio, touch controls,
->   gameplay options and cheats, written straight to `paperboat.cfg.json`.
-> - **Pause menu:** press Back twice in-game for Resume / Settings / Quit to main menu.
->
-> Build: `git clone --recursive -b airx https://github.com/chris43123/PaperBoat.git`,
-> then see [docs/android-ios-web.md](docs/android-ios-web.md#android). No game
-> data is included; you supply your own ROM.
+## Android build (this fork)
+
+This fork makes PaperBoat play well on Android handhelds: it fixes the bugs that
+broke the upstream Android build and adds a menu you can drive entirely with a
+controller or by touch. It was developed and tested on a **Mangmi Air X**
+(Android 14, Snapdragon 662 / Adreno 610). Upstream is
+[HarbourMasters/PaperBoat](https://github.com/HarbourMasters/PaperBoat); everything
+from **Project Lead** down is their README, unchanged.
+
+| Main menu | Settings |
+| :---: | :---: |
+| ![Main menu](docs/images/android/main-menu.png) | ![Settings](docs/images/android/settings.png) |
+| **Pause menu (Back twice)** | **In game** |
+| ![Pause menu](docs/images/android/pause-menu.png) | ![In game](docs/images/android/in-game.jpg) |
+
+### What's different from upstream
+
+**Fixes**
+- **Crash on first launch** after extracting the ROM (the app asked the engine
+  about its menu before the engine existed).
+- **Settings never saved** on Android (the config path contained the app
+  directory twice).
+- **Garbled or black graphics on Adreno GPUs.** Two causes, both needed:
+  GLES shaders now use `highp` precision (in the
+  [libultraship fork](https://github.com/chris43123/libultraship/tree/airx)), and
+  Android's native heap pointer tagging is turned off.
+- **Signed `char`** on AArch64, matching every other platform the port builds for.
+
+**New**
+- **Main menu**: Play, Settings, Mods, Saves and Exit, instead of dropping
+  straight into the game. Opening the app while a game is running offers
+  **Resume**.
+- **Native settings**: render scale, anti-aliasing, frame rate, VSync, texture
+  filtering, full-height view, volumes, touch controls, gameplay options and
+  cheats, written straight to the engine's `paperboat.cfg.json`.
+- **Pause menu**: press **Back twice** in game for Resume, Settings or Quit to
+  main menu. The game really pauses while it's open.
+- **Quitting** now always returns to the main menu.
+
+### Install
+
+There is no prebuilt APK yet, so build it yourself. You need the Android SDK
+with **NDK 30.0.15729638**, **CMake 3.30.3+** from the SDK manager, and
+**JDK 17+** (details in [docs/android-ios-web.md](docs/android-ios-web.md#android)).
+
+```bash
+git clone --recursive -b airx https://github.com/chris43123/PaperBoat.git
+cd PaperBoat/android
+./gradlew assembleRelease        # app/build/outputs/apk/release/app-release.apk
+adb install -r app/build/outputs/apk/release/app-release.apk
+```
+
+The build is for 64-bit ARM (`arm64-v8a`), which covers current Android handhelds.
+Without your own signing key it's signed with the debug key; that installs fine,
+but you'd have to uninstall it before installing a build signed differently.
+
+### First run
+
+1. Open **Paperboat** and pick your own **Paper Mario (USA)** ROM when asked
+   (SHA-1 `3837f44cda784b466c9a2d99df70d77c322b97a0`). No game data ships with the app.
+2. The game assets are extracted on the device. This happens once and takes about a
+   minute; keep the app open until the main menu appears.
+
+### Controls in the menus
+
+| Input | Main menu / pause menu | Settings |
+| --- | --- | --- |
+| D-pad | Move | Up/down: move · Left/right: change value |
+| **A** | Select | Next value |
+| **B** / Back | Back | Back (changes are already saved) |
+| **L1 / R1** | — | Previous / next section |
+| Touch | Tap a button | Tap ◀ ▶, a row, or a section name |
+
+Settings only change while the game is closed, since the running game would
+overwrite them. The pause menu's **Settings** closes the game for you and opens
+the settings screen. Anything since your last in-game save is lost when the
+game closes, and both Settings and Quit ask first.
+
+The engine's own menu (the ☰ button in the top-left) is still there for
+everything not covered by the native screens.
+
+### Files on the device
+
+Everything lives in `Android/data/dev.net64.paperboat/files/`:
+
+| Path | What |
+| --- | --- |
+| `paperboat.cfg.json` | All settings |
+| `saves/` | Save files (also managed from **Saves** in the main menu) |
+| `mods/` | `.o2r` / `.zip` mods (also managed from **Mods**) |
+| `pm64.o2r` | Assets extracted from your ROM |
+| `logs/Paperboat.log` | The engine's log, useful for bug reports |
+
+### Known limitations
+
+- Tested on one device so far (Mangmi Air X). Other 64-bit ARM Android handhelds
+  should work, but reports are welcome.
+- The on-screen touch controls are on by default; turn them off in
+  **Settings → Controls** if you only use physical buttons.
+- On weaker chips, lower **Render scale** and leave anti-aliasing off if the
+  game stutters.
+
+---
 
 Project Lead:
 * Caladius
